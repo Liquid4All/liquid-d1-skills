@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "liquid-d1",
+  "version": "0.1.0",
+  "description": "Build typed System One decisions with Liquid AI's d1 model across Liquid, Vercel AI Gateway, and OpenRouter.",
+  "author": {
+    "name": "Liquid AI",
+    "url": "https://liquid.ai"
+  },
+  "homepage": "https://liquid.ai",
+  "repository": "https://github.com/Liquid4All/liquid-d1-skills",
+  "license": "MIT",
+  "keywords": ["liquid-ai", "d1", "decisions", "classification", "routing"]
+}

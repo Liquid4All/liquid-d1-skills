@@ -1,0 +1,15 @@
+{
+  "name": "liquid-ai",
+  "description": "Agent skills for building with Liquid AI models.",
+  "owner": {
+    "name": "Liquid AI",
+    "url": "https://liquid.ai"
+  },
+  "plugins": [
+    {
+      "name": "liquid-d1",
+      "description": "Build typed System One decisions with Liquid AI's d1 model across Liquid, Vercel AI Gateway, and OpenRouter.",
+      "source": "./"
+    }
+  ]
+}

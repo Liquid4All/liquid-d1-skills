@@ -1,0 +1,20 @@
+{
+  "name": "liquid-ai",
+  "interface": {
+    "displayName": "Liquid AI"
+  },
+  "plugins": [
+    {
+      "name": "liquid-d1",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

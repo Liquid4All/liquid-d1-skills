@@ -2,21 +2,45 @@
 
 Drop-in skill for Claude Code, Codex, and other agent environments.
 
-The skill gives a coding agent full context on Liquid's d1 decision model.
-d1 is developed and owned by Liquid AI and implements the System One API
-contract:
-the three question types (Choice, Score, Noul), the API contract, the
-compatible SDKs pointed at Liquid, Vercel AI Gateway and OpenRouter access,
-and how to design questions and read probabilities in application code.
+The skill gives a coding agent context on Liquid AI's d1 decision-model family:
+the shared System One contract (Choice, Score, Noul), question design,
+probabilities, hosted API integrations, and local inference.
+
+## Choose a d1 model
+
+| Model | Deployment | Inputs |
+| --- | --- | --- |
+| `d1` | Hosted; lower-priced option | Text, images |
+| `d1-ultra` | Hosted; most capable option | Text, images |
+| `d1-3B` | Open weights, 3.1B | Text, images |
+| `d1-omni-600M` | Open weights, 587M | Text with images or audio |
+
+See the [model overview](https://docs.liquid.ai/lfm/models/decision-models)
+and [migration guide](https://docs.liquid.ai/guides/decision-model-guide).
 
 ## Access d1
 
-- **Liquid direct:** `d1` at
+- **Liquid direct:** `d1` or `d1-ultra` at
   `https://api.liquid.ai/decisions/v1/systemone`
-- **Vercel AI Gateway:** [`liquid/d1`](https://vercel.com/ai-gateway/models/d1)
-  through AI SDK's evaluation API
-- **OpenRouter:** [`liquid/d1`](https://openrouter.ai/liquid/d1) through the
-  Decisions API
+- **Vercel AI Gateway:** `liquid/d1` or `liquid/d1-ultra` through AI SDK's
+  decision API
+- **OpenRouter:** `liquid/d1` or `liquid/d1-ultra` through the Decisions API
+- **Local / self-hosted:** `d1-3B` or `d1-omni-600M` through Transformers,
+  llama.cpp, or MLX; see
+  [local inference](skills/liquid-d1/references/local-inference.md).
+
+The dependency-free [request runner](skills/liquid-d1/scripts/d1.py) supports
+hosted Liquid and compatible local HTTP servers. For a local llama.cpp server,
+pass a request file containing `state` and `questions` (no hosted model ID):
+
+```bash
+LIQUID_BASE_URL=http://127.0.0.1:8080 LIQUID_API_KEY= \
+  python3 skills/liquid-d1/scripts/d1.py request.json
+```
+
+Local servers can omit authentication. Set `LIQUID_API_KEY` if your server
+requires a bearer token. The no-argument demo uses hosted `model: "d1"`;
+`--models` requires a server implementing `GET /v1/models`.
 
 ## Installation
 
@@ -159,11 +183,15 @@ liquid-d1-skills/
     ├── references/
     │   ├── api.md                    API contract, limits, and errors
     │   ├── providers.md              Liquid, Vercel, and OpenRouter access
-    │   └── sdks.md                   curl, Python, and TypeScript usage
+    │   ├── sdks.md                   curl, Python, and TypeScript usage
+    │   └── local-inference.md        open weights, images, and audio
     └── scripts/
         └── d1.py                     stdlib-only request runner
 ```
 
 ## License
 
-[MIT](LICENSE) © 2026 Liquid AI.
+Skill code and documentation: [MIT](LICENSE) © 2026 Liquid AI.
+
+The downloadable `d1-3B` and `d1-omni-600M` model weights use the
+[LFM Open License](https://docs.liquid.ai/lfm/help/model-license).

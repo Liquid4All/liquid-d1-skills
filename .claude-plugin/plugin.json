@@ -1,7 +1,7 @@
 {
   "name": "liquid-d1",
   "version": "0.1.0",
-  "description": "Build typed System One decisions with Liquid AI's d1 model across Liquid, Vercel AI Gateway, and OpenRouter.",
+  "description": "Build typed System One decisions with Liquid AI's d1 family: hosted d1 and d1-ultra, plus local d1-3B and d1-omni-600M with image and audio support.",
   "author": {
     "name": "Liquid AI",
     "url": "https://liquid.ai"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Call Liquid's d1 decision endpoint with no dependencies beyond the stdlib.
+"""Call a hosted Liquid or compatible local System One endpoint with no dependencies beyond the stdlib.
 
 Usage:
     python d1.py                       # runs the built-in demo request
@@ -8,7 +8,10 @@ Usage:
     python d1.py --models              # lists decision models you can call
 
 Reads LIQUID_API_KEY from the environment. Set LIQUID_BASE_URL to override the
-base URL (default https://api.liquid.ai/decisions).
+base URL (default https://api.liquid.ai/decisions). For llama.cpp use
+http://127.0.0.1:8080 and a request file without a hosted model ID. Custom
+servers may omit LIQUID_API_KEY; if set, it is sent as a bearer token.
+The no-argument demo targets hosted d1. --models requires GET /v1/models.
 """
 
 from __future__ import annotations
@@ -18,6 +21,7 @@ import os
 import sys
 import urllib.error
 import urllib.request
+from urllib.parse import urlparse
 
 BASE_URL = os.environ.get("LIQUID_BASE_URL", "https://api.liquid.ai/decisions").rstrip("/")
 API_KEY = os.environ.get("LIQUID_API_KEY")
@@ -71,13 +75,13 @@ def request(method: str, path: str, body: dict | None = None) -> tuple[int, dict
 
 
 def system_one(body: dict) -> dict:
-    if not API_KEY:
+    if urlparse(BASE_URL).hostname == "api.liquid.ai" and not API_KEY:
         sys.exit("LIQUID_API_KEY is required to call Liquid d1")
     status, headers, payload = request("POST", "/v1/systemone", body)
     if status == 200:
         return payload
     hint = {
-        401: "missing or invalid LIQUID_API_KEY",
+        401: "missing or invalid bearer token; set LIQUID_API_KEY for this server",
         422: "request failed validation; check question shapes and prompt size",
         429: f"rate limited or model unavailable; Retry-After={headers.get('Retry-After')}",
     }.get(status, "unexpected status")

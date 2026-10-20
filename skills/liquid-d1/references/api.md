@@ -1,9 +1,10 @@
 # Liquid direct decision API reference
 
-Source: https://console.liquid.ai/docs (Decision models group). The console
-also publishes the full reference as Markdown, OpenAPI JSON, and OpenAPI YAML.
-Verify against the live page before relying on anything below; it was
-captured on 2026-09-29.
+Sources: https://docs.liquid.ai/lfm/models/d1 and
+https://console.liquid.ai/docs (Decision models group). Model and image support
+were refreshed on 2026-10-20. Numeric validation limits and error details below
+come from the console snapshot captured on 2026-09-29; recheck the live contract
+before relying on those limits. They apply to the hosted API, not local servers.
 
 ## Base URLs
 
@@ -15,8 +16,8 @@ OpenRouter endpoints, model IDs, and credentials, see `providers.md`.
 | Decision models (d1) | `https://api.liquid.ai/decisions` |
 | OpenAI-compatible chat, embeddings, files, batches (LFM models) | `https://api.liquid.ai/openai/v1` |
 
-TypeSafe SDKs work unchanged with their base URL set to
-`https://api.liquid.ai/decisions`.
+For current TypeSafe SDK configuration, use the Liquid examples in `sdks.md`.
+The SDK base URL is `https://api.liquid.ai`; raw HTTP uses the full route above.
 
 ## Authentication
 
@@ -35,10 +36,10 @@ model's probabilities in one forward pass with no generated tokens.
 
 | Field | Required | Description |
 | --- | --- | --- |
-| `model` | yes | Decision model id, e.g. `"d1"`. |
-| `questions` | yes | Object of up to 128 named questions. Answers come back under the same keys. |
+| `model` | yes | Hosted model ID: `"d1"` or `"d1-ultra"`. |
+| `questions` | yes | Object of named questions (the older console snapshot lists up to 128). Answers come back under the same keys. |
 | `state` | no | What the questions are about: plain text or structured JSON (a chat log, a record). Omit or send `null` when the questions stand alone. |
-| `images` | no | Up to 8 images, only for image-capable decision models (such as LFM2.5-S1-VL). d1 returns 422. Each is a `data:image/...;base64,` URL or `{ "content_type", "base64" }`; JPEG, PNG, WebP, or GIF; 5 MB each within the 4.5 MB request body limit. Images precede the state in the prompt, in the order sent, and every question sees all of them. This is an endpoint extension to the core System One contract; omit it for portable System One requests. |
+| `images` | no | Supported by both `d1` and `d1-ultra`. Each is a Base64 image data URL or an object with `content_type` and `base64` fields. Remote image URLs are not accepted; download and encode them first. Every question evaluates all supplied images. Check the live contract for image count, format, size, and total body limits. |
 
 ### Question shapes
 
@@ -51,8 +52,10 @@ Every question has a `type` and `instructions` (a string or JSON).
 | `noul` | Optional `{ "true": ..., "false": ... }`, used only when both are given and say more than a bare yes and no. |
 
 Each question is its own prompt carrying the whole state, and usage counts
-each one. `d1` caps each prompt at 32,768 tokens and 256 KiB and returns 422
-over either.
+each one. The older hosted console snapshot lists 32,768 tokens and 256 KiB per prompt
+and 422 above either. Verify current limits for the selected hosted model.
+Both hosted models use the same endpoint, question types, and response format.
+Audio input is documented for local `d1-omni-600M`, not this hosted API.
 
 ### Response
 
@@ -131,7 +134,7 @@ Response (200):
 | --- | --- |
 | 200 | Success. |
 | 401 | Missing or invalid API key. |
-| 422 | Validation error: bad question shape, prompt over 32,768 tokens or 256 KiB, images sent to a text-only model, unknown fields. |
+| 422 | Validation error: bad question shape, prompt exceeding the selected model's current limits, unsupported media or unknown fields. |
 | 429 | Organization/model request limit exceeded (see `Retry-After`), or the model has no healthy inference target (error code `model_unavailable`). |
 
 ### Rate limiting
@@ -151,14 +154,6 @@ unknown-model, and unavailable-model requests do not consume quota.
 Lists the decision models the organization can pass as `model`. These are
 separate from the OpenAI-compatible model list.
 
-```json
-{
-  "models": [
-    {
-      "name": "d1",
-      "description": "Fast, calibrated Choice, Score, and Noul decisions.",
-      "release_date": "2026-09-22"
-    }
-  ]
-}
-```
+Use the actual response to discover hosted model availability for the organization;
+do not treat a bundled example as an exhaustive model list. Local servers may
+not implement this route or return the same metadata.
